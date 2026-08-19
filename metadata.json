@@ -1,0 +1,6 @@
+{
+  "name": "TaskEarn",
+  "description": "Task-earning rewards platform with instant wallet payouts, task proof submissions, and offline persistence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
