@@ -2,35 +2,73 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Light / Dark Brand Colors (Fintech & Rewards Gold + Electric Indigo)
-val PrimaryIndigo = Color(0xFF4F46E5)
-val PrimaryIndigoLight = Color(0xFF6366F1)
-val PrimaryIndigoDark = Color(0xFF3730A3)
+// Geometric Balance Theme Palette
+val GeoPrimary = Color(0xFFD0BCFF)           // Lilac Lavender Accent
+val GeoPrimaryDark = Color(0xFF381E72)       // Deep Royal Purple (Text on GeoPrimary)
+val GeoPrimaryContainer = Color(0xFFEADDFF)  // Soft Lavender Pill
+val GeoOnPrimaryContainer = Color(0xFF21005D)// Dark Purple text
 
-val GoldReward = Color(0xFFF59E0B)
-val GoldRewardLight = Color(0xFFFBBF24)
-val GoldRewardDark = Color(0xFFB45309)
+val GeoBgDark = Color(0xFF1C1B1F)            // Root dark background
+val GeoSurfaceDark = Color(0xFF2B2930)       // Primary card surface
+val GeoSurfaceElevated = Color(0xFF333138)   // Secondary / anti-fraud banner surface
+val GeoNavBg = Color(0xFF211F26)             // Bottom navigation bar
+val GeoBorderDark = Color(0xFF49454F)        // Outline / divider
+val GeoBorderMuted = Color(0xFF938F99)       // Muted border
 
-val EmeraldSuccess = Color(0xFF10B981)
-val EmeraldSuccessLight = Color(0xFF34D399)
-val EmeraldSuccessDark = Color(0xFF047857)
+val GeoTextPrimary = Color(0xFFE6E1E5)       // Main text
+val GeoTextMuted = Color(0xFFCAC4D0)         // Subtitles / captions
+val GeoTextWhite = Color(0xFFFFFFFF)         // Bold headers
 
-val RoseDanger = Color(0xFFEF4444)
-val VioletAccent = Color(0xFF8B5CF6)
-val CyanAccent = Color(0xFF06B6D4)
+// Geometric Category Pastel Accents
+val GeoCategoryGamingBg = Color(0xFFEADDFF)
+val GeoCategoryGamingFg = Color(0xFF381E72)
 
-// Neutral Backgrounds & Surfaces
-val DarkBg = Color(0xFF0B0F19)
-val DarkSurface = Color(0xFF131C2E)
-val DarkSurfaceVariant = Color(0xFF1E293B)
-val DarkBorder = Color(0xFF334155)
+val GeoCategoryVideoBg = Color(0xFFF2B8B5)
+val GeoCategoryVideoFg = Color(0xFF601410)
 
-val LightBg = Color(0xFFF8FAFC)
+val GeoCategorySurveyBg = Color(0xFFD0BCFF)
+val GeoCategorySurveyFg = Color(0xFF381E72)
+
+val GeoCategorySocialBg = Color(0xFFCBE6FF)
+val GeoCategorySocialFg = Color(0xFF003355)
+
+val GeoCategoryDailyBg = Color(0xFFC4EED0)
+val GeoCategoryDailyFg = Color(0xFF0A3818)
+
+// Status & Action Colors
+val GeoSuccessGreen = Color(0xFF4ADE80)
+val GeoSuccessContainer = Color(0xFF2E4C38)
+val GeoDangerRed = Color(0xFFF2B8B5)
+val GeoGoldAccent = Color(0xFFFFD54F)
+
+// Backward compatible aliases to ensure smooth integration across all components
+val PrimaryIndigo = GeoPrimary
+val PrimaryIndigoLight = GeoPrimary
+val PrimaryIndigoDark = GeoPrimaryDark
+
+val GoldReward = GeoGoldAccent
+val GoldRewardLight = Color(0xFFFFE082)
+val GoldRewardDark = Color(0xFFFFB300)
+
+val EmeraldSuccess = GeoSuccessGreen
+val EmeraldSuccessLight = Color(0xFF86EFAC)
+val EmeraldSuccessDark = Color(0xFF16A34A)
+
+val RoseDanger = GeoDangerRed
+val VioletAccent = GeoPrimary
+val CyanAccent = Color(0xFF7DD3FC)
+
+val DarkBg = GeoBgDark
+val DarkSurface = GeoSurfaceDark
+val DarkSurfaceVariant = GeoSurfaceElevated
+val DarkBorder = GeoBorderDark
+
+val LightBg = Color(0xFFF6F5F8)
 val LightSurface = Color(0xFFFFFFFF)
-val LightSurfaceVariant = Color(0xFFF1F5F9)
-val LightBorder = Color(0xFFE2E8F0)
+val LightSurfaceVariant = Color(0xFFEDEBF0)
+val LightBorder = Color(0xFFCAC4D0)
 
-val TextPrimaryDark = Color(0xFFF8FAFC)
-val TextSecondaryDark = Color(0xFF94A3B8)
-val TextPrimaryLight = Color(0xFF0F172A)
-val TextSecondaryLight = Color(0xFF64748B)
+val TextPrimaryDark = GeoTextPrimary
+val TextSecondaryDark = GeoTextMuted
+val TextPrimaryLight = Color(0xFF1C1B1F)
+val TextSecondaryLight = Color(0xFF49454F)

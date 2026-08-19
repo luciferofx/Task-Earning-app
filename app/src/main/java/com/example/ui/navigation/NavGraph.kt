@@ -1,10 +1,6 @@
 package com.example.ui.navigation
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,15 +48,18 @@ import com.example.ui.screens.HomeScreen
 import com.example.ui.screens.ProfileScreen
 import com.example.ui.screens.TaskDetailScreen
 import com.example.ui.screens.WalletScreen
-import com.example.ui.theme.EmeraldSuccess
-import com.example.ui.theme.GoldReward
-import com.example.ui.theme.PrimaryIndigo
+import com.example.ui.theme.GeoBorderDark
+import com.example.ui.theme.GeoNavBg
+import com.example.ui.theme.GeoOnPrimaryContainer
+import com.example.ui.theme.GeoPrimary
+import com.example.ui.theme.GeoPrimaryContainer
+import com.example.ui.theme.GeoTextMuted
 import com.example.ui.viewmodel.TaskViewModel
 
 sealed class AppTab(val route: String, val title: String, val selectedIcon: ImageVector, val unselectedIcon: ImageVector) {
-    data object Home : AppTab("home", "Earn Tasks", Icons.Filled.Home, Icons.Outlined.Home)
+    data object Home : AppTab("home", "Home", Icons.Filled.Home, Icons.Outlined.Home)
     data object Wallet : AppTab("wallet", "Wallet", Icons.Filled.AccountBalanceWallet, Icons.Outlined.AccountBalanceWallet)
-    data object Profile : AppTab("profile", "Profile", Icons.Filled.Person, Icons.Outlined.Person)
+    data object Profile : AppTab("profile", "Account", Icons.Filled.Person, Icons.Outlined.Person)
 }
 
 @Composable
@@ -84,37 +83,47 @@ fun TaskEarnApp(viewModel: TaskViewModel) {
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (activeDetailTaskId == null) {
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 8.dp,
-                    modifier = Modifier.testTag("main_bottom_nav")
+                Surface(
+                    color = GeoNavBg,
+                    border = BorderStroke(1.dp, GeoBorderDark),
+                    tonalElevation = 6.dp
                 ) {
-                    val tabs = listOf(AppTab.Home, AppTab.Wallet, AppTab.Profile)
-                    tabs.forEach { tab ->
-                        val isSelected = currentTab == tab
-                        NavigationBarItem(
-                            selected = isSelected,
-                            onClick = { currentTab = tab },
-                            icon = {
-                                Icon(
-                                    imageVector = if (isSelected) tab.selectedIcon else tab.unselectedIcon,
-                                    contentDescription = tab.title
-                                )
-                            },
-                            label = {
-                                Text(
-                                    text = tab.title,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    fontSize = 12.sp
-                                )
-                            },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = PrimaryIndigo,
-                                selectedTextColor = PrimaryIndigo,
-                                indicatorColor = PrimaryIndigo.copy(alpha = 0.12f)
-                            ),
-                            modifier = Modifier.testTag("nav_item_${tab.route}")
-                        )
+                    NavigationBar(
+                        containerColor = GeoNavBg,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("main_bottom_nav")
+                    ) {
+                        val tabs = listOf(AppTab.Home, AppTab.Wallet, AppTab.Profile)
+                        tabs.forEach { tab ->
+                            val isSelected = currentTab == tab
+                            NavigationBarItem(
+                                selected = isSelected,
+                                onClick = { currentTab = tab },
+                                icon = {
+                                    Icon(
+                                        imageVector = if (isSelected) tab.selectedIcon else tab.unselectedIcon,
+                                        contentDescription = tab.title
+                                    )
+                                },
+                                label = {
+                                    Text(
+                                        text = tab.title.uppercase(),
+                                        fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium,
+                                        fontSize = 10.sp,
+                                        letterSpacing = 1.sp
+                                    )
+                                },
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = GeoOnPrimaryContainer,
+                                    selectedTextColor = GeoPrimary,
+                                    indicatorColor = GeoPrimaryContainer,
+                                    unselectedIconColor = GeoTextMuted.copy(alpha = 0.6f),
+                                    unselectedTextColor = GeoTextMuted.copy(alpha = 0.6f)
+                                ),
+                                modifier = Modifier.testTag("nav_item_${tab.route}")
+                            )
+                        }
                     }
                 }
             }

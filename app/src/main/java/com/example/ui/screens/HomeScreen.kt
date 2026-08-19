@@ -1,7 +1,9 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,11 +18,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -54,8 +56,16 @@ import com.example.ui.components.CategoryFilterRow
 import com.example.ui.components.SecurityStatusBanner
 import com.example.ui.components.StreakTrackerCard
 import com.example.ui.components.TaskItemCard
-import com.example.ui.theme.GoldReward
-import com.example.ui.theme.PrimaryIndigo
+import com.example.ui.theme.GeoBgDark
+import com.example.ui.theme.GeoBorderDark
+import com.example.ui.theme.GeoBorderMuted
+import com.example.ui.theme.GeoPrimary
+import com.example.ui.theme.GeoPrimaryDark
+import com.example.ui.theme.GeoSurfaceDark
+import com.example.ui.theme.GeoSurfaceElevated
+import com.example.ui.theme.GeoTextMuted
+import com.example.ui.theme.GeoTextPrimary
+import com.example.ui.theme.GeoTextWhite
 import com.example.ui.viewmodel.TaskUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,42 +82,78 @@ fun HomeScreen(
     onSecurityAuditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val userName = uiState.userProfile?.name ?: "Alex Rivera"
+    val userInitials = rememberInitials(userName)
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
+            .background(GeoBgDark)
             .testTag("home_screen_list"),
         contentPadding = PaddingValues(bottom = 90.dp)
     ) {
-        // App Hero Banner & Welcome
+        // Geometric Balance Header
         item {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
-                // Header Welcome
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, bottom = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
                         Text(
-                            text = "Hello, ${uiState.userProfile?.name?.split(" ")?.get(0) ?: "Earner"} 👋",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Black
+                            text = "GOOD MORNING",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = GeoTextMuted,
+                            letterSpacing = 1.5.sp,
+                            fontSize = 11.sp
                         )
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "Complete tasks, earn coins & withdraw cash instantly.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = userName,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = GeoTextWhite
                         )
+                    }
+
+                    // Avatar Circle (w-11 h-11 rounded-full bg-[#49454F] border border-[#938F99])
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(CircleShape)
+                            .background(GeoSurfaceElevated)
+                            .clickable { onSecurityAuditClick() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = Color.Transparent,
+                            border = BorderStroke(1.dp, GeoBorderMuted),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = userInitials,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Black,
+                                    color = GeoPrimary
+                                )
+                            }
+                        }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-                // Balance Card
+                // Geometric Balance Hero Card
                 BalanceHeroCard(
                     userProfile = uiState.userProfile,
                     selectedCurrency = uiState.selectedCurrency,
@@ -116,32 +162,33 @@ fun HomeScreen(
                     onStreakClick = onSecurityAuditClick
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Security Banner
-                SecurityStatusBanner(
-                    auditResult = uiState.securityAudit,
-                    onClick = onSecurityAuditClick
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Streak Tracker
                 StreakTrackerCard(
                     currentStreak = uiState.userProfile?.streakDays ?: 1,
                     onClaimClick = onStreakClaim
                 )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Anti-Fraud Protection Status Bar (matching design HTML bottom shield card)
+                SecurityStatusBanner(
+                    auditResult = uiState.securityAudit,
+                    onClick = onSecurityAuditClick
+                )
             }
         }
 
-        // Hero Promotional Card with generated asset
+        // Promotional Campaign Hero Card
         item {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                    .padding(horizontal = 20.dp, vertical = 6.dp),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
+                border = BorderStroke(1.dp, GeoBorderDark)
             ) {
                 Box(modifier = Modifier.fillMaxWidth()) {
                     Image(
@@ -149,28 +196,29 @@ fun HomeScreen(
                         contentDescription = "Earn Rewards Banner",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(130.dp),
+                            .height(125.dp),
                         contentScale = ContentScale.Crop
                     )
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(130.dp)
-                            .background(Color.Black.copy(alpha = 0.45f))
+                            .height(125.dp)
+                            .background(Color.Black.copy(alpha = 0.5f))
                             .padding(16.dp),
                         contentAlignment = Alignment.BottomStart
                     ) {
                         Column {
                             Surface(
                                 shape = RoundedCornerShape(6.dp),
-                                color = GoldReward
+                                color = GeoPrimary
                             ) {
                                 Text(
                                     text = "SPECIAL CAMPAIGN",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Black,
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    color = GeoPrimaryDark,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                    fontSize = 10.sp
                                 )
                             }
                             Spacer(modifier = Modifier.height(4.dp))
@@ -186,7 +234,7 @@ fun HomeScreen(
             }
         }
 
-        // Search and Filter Header
+        // Search and Available Tasks Header
         item {
             Column(
                 modifier = Modifier
@@ -199,32 +247,34 @@ fun HomeScreen(
                     onValueChange = onSearchChange,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = 20.dp)
                         .testTag("task_search_input"),
-                    placeholder = { Text("Search tasks, surveys, games...") },
+                    placeholder = { Text("Search tasks, surveys, games...", color = GeoTextMuted) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Search",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = GeoTextMuted
                         )
                     },
                     trailingIcon = {
                         if (uiState.searchQuery.isNotBlank()) {
                             IconButton(onClick = { onSearchChange("") }) {
-                                Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                Icon(Icons.Default.Clear, contentDescription = "Clear", tint = GeoTextMuted)
                             }
                         }
                     },
                     singleLine = true,
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        focusedContainerColor = MaterialTheme.colorScheme.surface
+                        focusedBorderColor = GeoPrimary,
+                        unfocusedBorderColor = GeoBorderDark,
+                        unfocusedContainerColor = GeoSurfaceDark,
+                        focusedContainerColor = GeoSurfaceDark
                     )
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 // Category Chips
                 CategoryFilterRow(
@@ -232,20 +282,23 @@ fun HomeScreen(
                     onCategorySelected = onCategorySelect
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
-                // Task List Section Title & Status Filters
+                // Task List Section Title
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 20.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Available Tasks (${uiState.filteredTasks.size})",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        text = "AVAILABLE TASKS",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Black,
+                        color = GeoPrimary,
+                        letterSpacing = 2.sp,
+                        fontSize = 12.sp
                     )
 
                     Row {
@@ -253,10 +306,10 @@ fun HomeScreen(
                             onClick = { onStatusFilterSelect(null) }
                         ) {
                             Text(
-                                text = if (uiState.selectedStatusFilter == null) "All Status" else "Clear Filter",
+                                text = if (uiState.selectedStatusFilter == null) "See all" else "Clear Filter",
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = PrimaryIndigo
+                                color = GeoTextMuted
                             )
                         }
                     }
@@ -270,10 +323,10 @@ fun HomeScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp),
+                        .height(180.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = PrimaryIndigo)
+                    CircularProgressIndicator(color = GeoPrimary)
                 }
             }
         } else if (uiState.filteredTasks.isEmpty()) {
@@ -281,9 +334,10 @@ fun HomeScreen(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        .padding(20.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
+                    border = BorderStroke(1.dp, GeoBorderDark)
                 ) {
                     Column(
                         modifier = Modifier
@@ -294,19 +348,20 @@ fun HomeScreen(
                         Icon(
                             imageVector = Icons.Default.CardGiftcard,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = GeoTextMuted,
                             modifier = Modifier.size(40.dp)
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             text = "No tasks found",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = GeoTextWhite
                         )
                         Text(
                             text = "Try switching categories or clearing search filters.",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = GeoTextMuted
                         )
                     }
                 }
@@ -316,9 +371,18 @@ fun HomeScreen(
                 TaskItemCard(
                     task = task,
                     onClick = { onTaskClick(task.id) },
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
                 )
             }
         }
+    }
+}
+
+fun rememberInitials(name: String): String {
+    val parts = name.trim().split(" ").filter { it.isNotBlank() }
+    return when {
+        parts.size >= 2 -> "${parts[0].first().uppercaseChar()}${parts[1].first().uppercaseChar()}"
+        parts.isNotEmpty() -> parts[0].take(2).uppercase()
+        else -> "AR"
     }
 }

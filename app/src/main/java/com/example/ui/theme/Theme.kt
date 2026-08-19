@@ -11,36 +11,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryIndigoLight,
-    onPrimary = Color.White,
-    primaryContainer = PrimaryIndigoDark,
-    onPrimaryContainer = Color.White,
-    secondary = GoldReward,
-    onSecondary = Color.Black,
-    secondaryContainer = Color(0xFF452A03),
-    onSecondaryContainer = GoldRewardLight,
-    tertiary = CyanAccent,
-    background = DarkBg,
-    onBackground = TextPrimaryDark,
-    surface = DarkSurface,
-    onSurface = TextPrimaryDark,
-    surfaceVariant = DarkSurfaceVariant,
-    onSurfaceVariant = TextSecondaryDark,
-    outline = DarkBorder,
-    error = RoseDanger
+private val GeometricDarkColorScheme = darkColorScheme(
+    primary = GeoPrimary,
+    onPrimary = GeoPrimaryDark,
+    primaryContainer = GeoPrimaryContainer,
+    onPrimaryContainer = GeoOnPrimaryContainer,
+    secondary = GeoPrimaryContainer,
+    onSecondary = GeoPrimaryDark,
+    secondaryContainer = GeoSurfaceElevated,
+    onSecondaryContainer = GeoPrimary,
+    tertiary = GeoGoldAccent,
+    background = GeoBgDark,
+    onBackground = GeoTextPrimary,
+    surface = GeoSurfaceDark,
+    onSurface = GeoTextPrimary,
+    surfaceVariant = GeoSurfaceElevated,
+    onSurfaceVariant = GeoTextMuted,
+    outline = GeoBorderDark,
+    outlineVariant = GeoBorderMuted,
+    error = GeoDangerRed,
+    onError = GeoCategoryVideoFg
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = PrimaryIndigo,
+private val GeometricLightColorScheme = lightColorScheme(
+    primary = GeoPrimaryDark,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFEEF2FF),
-    onPrimaryContainer = PrimaryIndigoDark,
-    secondary = GoldRewardDark,
+    primaryContainer = GeoPrimaryContainer,
+    onPrimaryContainer = GeoOnPrimaryContainer,
+    secondary = GeoPrimaryDark,
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFFEF3C7),
-    onSecondaryContainer = Color(0xFF78350F),
-    tertiary = VioletAccent,
+    secondaryContainer = Color(0xFFE8DEF8),
+    onSecondaryContainer = GeoPrimaryDark,
+    tertiary = Color(0xFF7D5260),
     background = LightBg,
     onBackground = TextPrimaryLight,
     surface = LightSurface,
@@ -48,13 +50,15 @@ private val LightColorScheme = lightColorScheme(
     surfaceVariant = LightSurfaceVariant,
     onSurfaceVariant = TextSecondaryLight,
     outline = LightBorder,
-    error = RoseDanger
+    outlineVariant = Color(0xFFCAC4D0),
+    error = Color(0xFFB3261E),
+    onError = Color.White
 )
 
 @Composable
 fun MyApplicationTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false, // Set false to ensure branded reward palette
+    darkTheme: Boolean = true, // Geometric Balance showcases modern dark aesthetic by default
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -62,8 +66,8 @@ fun MyApplicationTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> GeometricDarkColorScheme
+        else -> GeometricLightColorScheme
     }
 
     MaterialTheme(

@@ -56,13 +56,20 @@ import com.example.data.local.entity.TaskEntity
 import com.example.data.model.Currency
 import com.example.data.model.TaskStatus
 import com.example.ui.components.StatusBadge
-import com.example.ui.components.getCategoryColor
+import com.example.ui.components.getCategoryBgColor
+import com.example.ui.components.getCategoryFgColor
 import com.example.ui.components.getCategoryIcon
-import com.example.ui.theme.EmeraldSuccess
-import com.example.ui.theme.GoldReward
-import com.example.ui.theme.GoldRewardDark
-import com.example.ui.theme.GoldRewardLight
-import com.example.ui.theme.PrimaryIndigo
+import com.example.ui.theme.GeoBgDark
+import com.example.ui.theme.GeoBorderDark
+import com.example.ui.theme.GeoDangerRed
+import com.example.ui.theme.GeoPrimary
+import com.example.ui.theme.GeoPrimaryContainer
+import com.example.ui.theme.GeoPrimaryDark
+import com.example.ui.theme.GeoSuccessGreen
+import com.example.ui.theme.GeoSurfaceDark
+import com.example.ui.theme.GeoSurfaceElevated
+import com.example.ui.theme.GeoTextMuted
+import com.example.ui.theme.GeoTextWhite
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,255 +81,139 @@ fun TaskDetailScreen(
     modifier: Modifier = Modifier
 ) {
     if (task == null) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Task not found.")
+        Box(modifier = Modifier.fillMaxSize().background(GeoBgDark), contentAlignment = Alignment.Center) {
+            Text("Task not found.", color = GeoTextMuted)
         }
         return
     }
 
     val cashValuation = when (currency) {
-        Currency.USD -> task.pointsReward / 1000.0
-        Currency.INR -> task.pointsReward / 12.0
-        Currency.EUR -> task.pointsReward / 1080.0
+        Currency.USD -> task.pointsReward / 100.0
+        Currency.INR -> task.pointsReward / 1.2
+        Currency.EUR -> task.pointsReward / 108.0
     }
 
     Scaffold(
+        containerColor = GeoBgDark,
         topBar = {
             TopAppBar(
-                title = { Text("Task Details", fontWeight = FontWeight.Bold) },
+                title = { Text("Task Details", fontWeight = FontWeight.Bold, color = GeoTextWhite) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = "Back",
+                            tint = GeoTextWhite
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = GeoBgDark
                 )
             )
-        },
-        bottomBar = {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 8.dp,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    when (task.status) {
-                        TaskStatus.AVAILABLE -> {
-                            Button(
-                                onClick = onSubmitProofClick,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(50.dp)
-                                    .testTag("submit_task_proof_btn"),
-                                shape = RoundedCornerShape(14.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryIndigo)
-                            ) {
-                                Icon(Icons.Default.UploadFile, contentDescription = null)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Submit Proof", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            }
-                        }
-                        TaskStatus.IN_REVIEW -> {
-                            Surface(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(50.dp),
-                                shape = RoundedCornerShape(14.dp),
-                                color = GoldReward.copy(alpha = 0.2f),
-                                border = BorderStroke(1.dp, GoldReward)
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Icon(Icons.Default.Info, contentDescription = null, tint = GoldRewardDark)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = "Submission Under Review",
-                                        fontWeight = FontWeight.Bold,
-                                        color = GoldRewardDark
-                                    )
-                                }
-                            }
-                        }
-                        TaskStatus.COMPLETED -> {
-                            Surface(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(50.dp),
-                                shape = RoundedCornerShape(14.dp),
-                                color = EmeraldSuccess.copy(alpha = 0.2f),
-                                border = BorderStroke(1.dp, EmeraldSuccess)
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = EmeraldSuccess)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = "Completed & Points Credited!",
-                                        fontWeight = FontWeight.Bold,
-                                        color = EmeraldSuccess
-                                    )
-                                }
-                            }
-                        }
-                        TaskStatus.REJECTED -> {
-                            OutlinedButton(
-                                onClick = onSubmitProofClick,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(50.dp),
-                                shape = RoundedCornerShape(14.dp)
-                            ) {
-                                Text("Re-submit Proof", fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
-                }
-            }
         }
-    ) { innerPadding ->
+    ) { padding ->
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .testTag("task_detail_content"),
-            contentPadding = PaddingValues(16.dp)
+                .padding(padding)
+                .testTag("task_detail_screen"),
+            contentPadding = PaddingValues(20.dp)
         ) {
             // Task Header Card
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
+                    border = BorderStroke(1.dp, GeoBorderDark)
                 ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp)
+                    ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(42.dp)
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(getCategoryColor(task.category).copy(alpha = 0.2f)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = getCategoryIcon(task.category),
-                                        contentDescription = null,
-                                        tint = getCategoryColor(task.category),
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column {
-                                    Text(
-                                        text = task.category.displayName,
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            imageVector = Icons.Default.Timer,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(14.dp),
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(
-                                            text = "~${task.durationMinutes} mins duration",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
+                            Box(
+                                modifier = Modifier
+                                    .size(52.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(getCategoryBgColor(task.category)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = getCategoryIcon(task.category),
+                                    contentDescription = task.category.displayName,
+                                    tint = getCategoryFgColor(task.category),
+                                    modifier = Modifier.size(28.dp)
+                                )
                             }
 
                             StatusBadge(status = task.status)
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
 
                         Text(
                             text = task.title,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = GeoTextWhite
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
 
                         Text(
                             text = task.description,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = GeoTextMuted
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(18.dp))
 
-                        // Reward Box
+                        // Reward Geometric Box
                         Surface(
-                            shape = RoundedCornerShape(14.dp),
-                            color = GoldRewardLight.copy(alpha = 0.25f),
-                            border = BorderStroke(1.dp, GoldReward)
+                            shape = RoundedCornerShape(16.dp),
+                            color = GeoPrimary,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(14.dp),
+                                    .padding(16.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        imageVector = Icons.Default.MonetizationOn,
-                                        contentDescription = null,
-                                        tint = GoldRewardDark,
-                                        modifier = Modifier.size(28.dp)
+                                Column {
+                                    Text(
+                                        text = "TASK REWARD",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Black,
+                                        color = GeoPrimaryDark.copy(alpha = 0.8f),
+                                        letterSpacing = 1.sp
                                     )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Column {
-                                        Text(
-                                            text = "+${task.pointsReward} Points",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Black,
-                                            color = GoldRewardDark
-                                        )
-                                        Text(
-                                            text = "≈ ${currency.symbol}${String.format("%.2f", cashValuation)} ${currency.code}",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.Bold,
-                                            color = EmeraldSuccess
-                                        )
-                                    }
+                                    Text(
+                                        text = "+${task.pointsReward} Points",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Black,
+                                        color = GeoPrimaryDark
+                                    )
                                 }
 
                                 Surface(
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = PrimaryIndigo.copy(alpha = 0.15f)
+                                    shape = CircleShape,
+                                    color = GeoPrimaryDark.copy(alpha = 0.12f)
                                 ) {
                                     Text(
-                                        text = "Instant Payout",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = PrimaryIndigo,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        text = "≈ ${currency.symbol}${String.format("%.2f", cashValuation)}",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = GeoPrimaryDark,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                                     )
                                 }
                             }
@@ -331,28 +222,33 @@ fun TaskDetailScreen(
                 }
             }
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            item { Spacer(modifier = Modifier.height(16.dp)) }
 
-            // Step by step Instructions Card
+            // Instructions & Step-by-Step
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
+                    border = BorderStroke(1.dp, GeoBorderDark)
                 ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp)
+                    ) {
                         Text(
-                            text = "How to Complete This Task",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            text = "HOW TO COMPLETE",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Black,
+                            color = GeoPrimary,
+                            letterSpacing = 1.5.sp
                         )
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        val instructionLines = task.instructions.lines().filter { it.isNotBlank() }
-                        instructionLines.forEachIndexed { index, line ->
+                        val steps = task.instructions.lines().filter { it.isNotBlank() }.ifEmpty { listOf(task.instructions) }
+                        steps.forEachIndexed { index, step ->
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -363,21 +259,23 @@ fun TaskDetailScreen(
                                     modifier = Modifier
                                         .size(24.dp)
                                         .clip(CircleShape)
-                                        .background(PrimaryIndigo.copy(alpha = 0.15f)),
+                                        .background(GeoPrimaryContainer),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
                                         text = "${index + 1}",
                                         style = MaterialTheme.typography.labelSmall,
                                         fontWeight = FontWeight.Bold,
-                                        color = PrimaryIndigo
+                                        color = GeoPrimaryDark
                                     )
                                 }
+
                                 Spacer(modifier = Modifier.width(12.dp))
+
                                 Text(
-                                    text = line.replaceFirst(Regex("^\\d+\\.\\s*"), ""),
+                                    text = step,
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurface,
+                                    color = GeoTextWhite,
                                     modifier = Modifier.weight(1f)
                                 )
                             }
@@ -386,68 +284,151 @@ fun TaskDetailScreen(
                 }
             }
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            item { Spacer(modifier = Modifier.height(16.dp)) }
 
             // Proof Requirement Card
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(1.dp, PrimaryIndigo.copy(alpha = 0.2f))
+                    colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
+                    border = BorderStroke(1.dp, GeoBorderDark)
                 ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Security,
-                                contentDescription = null,
-                                tint = PrimaryIndigo,
-                                modifier = Modifier.size(22.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Verification & Proof Requirements",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp)
+                    ) {
+                        Text(
+                            text = "PROOF REQUIRED",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Black,
+                            color = GeoPrimary,
+                            letterSpacing = 1.5.sp
+                        )
 
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
                             text = task.proofRequirement,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = GeoTextWhite
                         )
 
-                        if (!task.submittedProofUrl.isNullOrBlank()) {
-                            Spacer(modifier = Modifier.height(14.dp))
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
-                            Spacer(modifier = Modifier.height(10.dp))
+                        if (task.submittedProofUrl != null || task.submittedNote != null) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = GeoSurfaceElevated
+                            ) {
+                                Column(modifier = Modifier.padding(12.dp)) {
+                                    Text(
+                                        text = "Your Submitted Proof:",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = GeoPrimary
+                                    )
+                                    task.submittedProofUrl?.let { url ->
+                                        Text(text = "Link: $url", style = MaterialTheme.typography.bodySmall, color = GeoTextWhite)
+                                    }
+                                    task.submittedNote?.let { note ->
+                                        Text(text = "Note: $note", style = MaterialTheme.typography.bodySmall, color = GeoTextMuted)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
-                            Text(
-                                text = "Your Submitted Proof:",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = task.submittedProofUrl,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = PrimaryIndigo,
-                                fontWeight = FontWeight.Medium
-                            )
+            item { Spacer(modifier = Modifier.height(24.dp)) }
 
-                            if (!task.submittedNote.isNullOrBlank()) {
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "Notes: ${task.submittedNote}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+            // Action Buttons
+            item {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    when (task.status) {
+                        TaskStatus.AVAILABLE -> {
+                            Button(
+                                onClick = onSubmitProofClick,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(52.dp)
+                                    .testTag("submit_proof_cta"),
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = GeoPrimary,
+                                    contentColor = GeoPrimaryDark
                                 )
+                            ) {
+                                Icon(Icons.Default.UploadFile, contentDescription = null, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Complete & Submit Proof", fontWeight = FontWeight.Bold)
+                            }
+                        }
+                        TaskStatus.IN_REVIEW -> {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(14.dp),
+                                color = GeoSurfaceDark,
+                                border = BorderStroke(1.dp, GeoBorderDark)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.Timer, contentDescription = null, tint = GeoPrimary)
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Text(
+                                        text = "Proof under automated & manual review (ETA: 2-4 hrs)",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Medium,
+                                        color = GeoTextWhite
+                                    )
+                                }
+                            }
+                        }
+                        TaskStatus.COMPLETED -> {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(14.dp),
+                                color = GeoSuccessGreen.copy(alpha = 0.15f),
+                                border = BorderStroke(1.dp, GeoSuccessGreen.copy(alpha = 0.4f))
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = GeoSuccessGreen)
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Text(
+                                        text = "Task Completed • +${task.pointsReward} Points Credited",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = GeoSuccessGreen
+                                    )
+                                }
+                            }
+                        }
+                        TaskStatus.REJECTED -> {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(14.dp),
+                                color = GeoDangerRed.copy(alpha = 0.15f),
+                                border = BorderStroke(1.dp, GeoDangerRed.copy(alpha = 0.4f))
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.Info, contentDescription = null, tint = GeoDangerRed)
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Text(
+                                        text = "Proof rejected. Please review requirements and try again.",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = GeoDangerRed
+                                    )
+                                }
                             }
                         }
                     }

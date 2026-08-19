@@ -26,14 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.HelpOutline
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Button
@@ -50,9 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -60,14 +51,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.local.entity.UserProfileEntity
 import com.example.data.model.SecurityAuditResult
-import com.example.ui.theme.EmeraldSuccess
-import com.example.ui.theme.EmeraldSuccessLight
-import com.example.ui.theme.GoldReward
-import com.example.ui.theme.GoldRewardDark
-import com.example.ui.theme.GoldRewardLight
-import com.example.ui.theme.PrimaryIndigo
-import com.example.ui.theme.PrimaryIndigoLight
-import com.example.ui.theme.RoseDanger
+import com.example.ui.theme.GeoBgDark
+import com.example.ui.theme.GeoBorderDark
+import com.example.ui.theme.GeoBorderMuted
+import com.example.ui.theme.GeoPrimary
+import com.example.ui.theme.GeoPrimaryContainer
+import com.example.ui.theme.GeoPrimaryDark
+import com.example.ui.theme.GeoSuccessGreen
+import com.example.ui.theme.GeoSurfaceDark
+import com.example.ui.theme.GeoSurfaceElevated
+import com.example.ui.theme.GeoTextMuted
+import com.example.ui.theme.GeoTextPrimary
+import com.example.ui.theme.GeoTextWhite
 
 @Composable
 fun ProfileScreen(
@@ -79,108 +74,110 @@ fun ProfileScreen(
 ) {
     val context = LocalContext.current
     val referralCode = userProfile?.referralCode ?: "EARN99X"
+    val userName = userProfile?.name ?: "Alex Rivera"
 
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
+            .background(GeoBgDark)
             .testTag("profile_screen_list"),
         contentPadding = PaddingValues(bottom = 90.dp)
     ) {
-        // User Profile Header
+        // Geometric Profile Header Card
         item {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+                    .padding(20.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
+                border = BorderStroke(1.dp, GeoBorderDark)
             ) {
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(
-                            brush = Brush.linearGradient(
-                                colors = listOf(
-                                    PrimaryIndigo,
-                                    Color(0xFF312E81)
-                                )
-                            )
-                        )
-                        .padding(20.dp)
+                        .padding(22.dp)
                 ) {
-                    Column {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(CircleShape)
+                                .background(GeoSurfaceElevated),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(60.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White.copy(alpha = 0.2f)),
-                                contentAlignment = Alignment.Center
+                            Surface(
+                                shape = CircleShape,
+                                color = Color.Transparent,
+                                border = BorderStroke(1.dp, GeoBorderMuted),
+                                modifier = Modifier.fillMaxSize()
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.AccountCircle,
-                                    contentDescription = "Avatar",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(48.dp)
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.width(14.dp))
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(contentAlignment = Alignment.Center) {
                                     Text(
-                                        text = userProfile?.name ?: "Alex Rivera",
-                                        style = MaterialTheme.typography.titleLarge,
+                                        text = rememberInitials(userName),
+                                        style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Black,
-                                        color = Color.White
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Icon(
-                                        imageVector = Icons.Default.CheckCircle,
-                                        contentDescription = "Verified Earner",
-                                        tint = GoldRewardLight,
-                                        modifier = Modifier.size(18.dp)
+                                        color = GeoPrimary
                                     )
                                 }
-                                Text(
-                                    text = userProfile?.email ?: "alex.rivera@example.com",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = Color.White.copy(alpha = 0.8f)
-                                )
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.width(14.dp))
 
-                        HorizontalDivider(color = Color.White.copy(alpha = 0.2f))
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        // Stats Quick Row
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            ProfileStatItem(
-                                label = "Total Earned",
-                                value = "+%,d".format(userProfile?.totalEarnedPoints ?: 14500),
-                                color = GoldRewardLight
-                            )
-                            ProfileStatItem(
-                                label = "Withdrawn",
-                                value = "%,d".format(userProfile?.totalWithdrawnPoints ?: 9650),
-                                color = EmeraldSuccessLight
-                            )
-                            ProfileStatItem(
-                                label = "Completed",
-                                value = "${userProfile?.completedTasksCount ?: 7} Tasks",
-                                color = Color.White
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = userName,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = GeoTextWhite
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Icon(
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = "Verified",
+                                    tint = GeoPrimary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Text(
+                                text = userProfile?.email ?: "alex.rivera@example.com",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = GeoTextMuted
                             )
                         }
+                    }
+
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    HorizontalDivider(color = GeoBorderDark.copy(alpha = 0.8f))
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Stats Quick Row in Geometric Boxes
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        ProfileStatItem(
+                            label = "TOTAL EARNED",
+                            value = "+%,d".format(userProfile?.totalEarnedPoints ?: 14500),
+                            color = GeoPrimary
+                        )
+                        ProfileStatItem(
+                            label = "WITHDRAWN",
+                            value = "%,d".format(userProfile?.totalWithdrawnPoints ?: 9650),
+                            color = GeoSuccessGreen
+                        )
+                        ProfileStatItem(
+                            label = "COMPLETED",
+                            value = "${userProfile?.completedTasksCount ?: 7} Tasks",
+                            color = GeoTextWhite
+                        )
                     }
                 }
             }
@@ -191,37 +188,39 @@ fun ProfileScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                    .padding(horizontal = 20.dp, vertical = 6.dp),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
+                border = BorderStroke(1.dp, GeoBorderDark)
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(GoldReward.copy(alpha = 0.2f)),
+                                .size(42.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(GeoPrimaryContainer),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.People,
                                 contentDescription = null,
-                                tint = GoldRewardDark,
-                                modifier = Modifier.size(20.dp)
+                                tint = GeoPrimaryDark,
+                                modifier = Modifier.size(22.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
                                 text = "Refer Friends & Earn 500 pts",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = GeoTextWhite
                             )
                             Text(
-                                text = "Earn 500 bonus points whenever a friend signs up!",
+                                text = "Earn 500 bonus points for every friend who joins.",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = GeoTextMuted
                             )
                         }
                     }
@@ -229,9 +228,9 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(14.dp))
 
                     Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.surface,
-                        border = BorderStroke(1.dp, PrimaryIndigo.copy(alpha = 0.3f))
+                        shape = RoundedCornerShape(14.dp),
+                        color = GeoSurfaceElevated,
+                        border = BorderStroke(1.dp, GeoBorderDark)
                     ) {
                         Row(
                             modifier = Modifier
@@ -244,14 +243,16 @@ fun ProfileScreen(
                                 Text(
                                     text = "YOUR REFERRAL CODE",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontWeight = FontWeight.Bold
+                                    color = GeoTextMuted,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.sp,
+                                    letterSpacing = 1.sp
                                 )
                                 Text(
                                     text = referralCode,
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Black,
-                                    color = PrimaryIndigo,
+                                    color = GeoPrimary,
                                     letterSpacing = 2.sp
                                 )
                             }
@@ -264,7 +265,10 @@ fun ProfileScreen(
                                     Toast.makeText(context, "Referral code copied!", Toast.LENGTH_SHORT).show()
                                 },
                                 shape = RoundedCornerShape(10.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryIndigo)
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = GeoPrimary,
+                                    contentColor = GeoPrimaryDark
+                                )
                             ) {
                                 Icon(Icons.Default.ContentCopy, contentDescription = "Copy", modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
@@ -281,11 +285,11 @@ fun ProfileScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp)
+                    .padding(horizontal = 20.dp, vertical = 6.dp)
                     .clickable { onOpenSecurityDialog() },
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
+                border = BorderStroke(1.dp, GeoBorderDark)
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
                     Row(
@@ -297,20 +301,21 @@ fun ProfileScreen(
                             Icon(
                                 imageVector = Icons.Default.Shield,
                                 contentDescription = null,
-                                tint = EmeraldSuccess,
+                                tint = GeoPrimary,
                                 modifier = Modifier.size(24.dp)
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
                                 Text(
                                     text = "Anti-Fraud & Security Audit",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = GeoTextWhite
                                 )
                                 Text(
                                     text = "Integrity Score: ${securityAudit?.integrityScore ?: 100}%",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = EmeraldSuccess,
+                                    color = GeoSuccessGreen,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
@@ -318,26 +323,27 @@ fun ProfileScreen(
 
                         OutlinedButton(
                             onClick = onOpenSecurityDialog,
-                            shape = RoundedCornerShape(10.dp)
+                            shape = RoundedCornerShape(10.dp),
+                            border = BorderStroke(1.dp, GeoBorderDark)
                         ) {
-                            Text("View Audit", fontSize = 12.sp)
+                            Text("Audit", fontSize = 12.sp, color = GeoPrimary)
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Real-time verification of root binaries, proxy tunnels, and device fingerprint validation.",
+                        text = "Hardware fingerprint validation, su-binary check, and proxy-tunnel status.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = GeoTextMuted
                     )
                 }
             }
         }
 
-        // Account Actions
+        // Account Switch / Link
         item {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(20.dp)) {
                 Button(
                     onClick = onOpenAuthDialog,
                     modifier = Modifier
@@ -345,10 +351,13 @@ fun ProfileScreen(
                         .height(48.dp)
                         .testTag("switch_account_btn"),
                     shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant, contentColor = MaterialTheme.colorScheme.onSurface),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GeoSurfaceElevated,
+                        contentColor = GeoTextWhite
+                    ),
+                    border = BorderStroke(1.dp, GeoBorderDark)
                 ) {
-                    Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = PrimaryIndigo)
+                    Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = GeoPrimary)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Switch / Link Google Account", fontWeight = FontWeight.Bold)
                 }
@@ -367,7 +376,10 @@ fun ProfileStatItem(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = Color.White.copy(alpha = 0.7f)
+            color = GeoTextMuted,
+            fontWeight = FontWeight.Bold,
+            fontSize = 10.sp,
+            letterSpacing = 1.sp
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(

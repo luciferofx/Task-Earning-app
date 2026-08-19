@@ -29,16 +29,13 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CurrencyBitcoin
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material.icons.filled.Shop
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -53,7 +50,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -66,15 +62,29 @@ import com.example.data.local.entity.UserProfileEntity
 import com.example.data.model.Currency
 import com.example.data.model.PayoutMethod
 import com.example.ui.components.BalanceHeroCard
-import com.example.ui.theme.CyanAccent
-import com.example.ui.theme.EmeraldSuccess
-import com.example.ui.theme.GoldReward
-import com.example.ui.theme.GoldRewardDark
-import com.example.ui.theme.GoldRewardLight
-import com.example.ui.theme.PrimaryIndigo
-import com.example.ui.theme.PrimaryIndigoLight
-import com.example.ui.theme.RoseDanger
-import com.example.ui.theme.VioletAccent
+import com.example.ui.theme.GeoBgDark
+import com.example.ui.theme.GeoBorderDark
+import com.example.ui.theme.GeoCategoryDailyBg
+import com.example.ui.theme.GeoCategoryDailyFg
+import com.example.ui.theme.GeoCategoryGamingBg
+import com.example.ui.theme.GeoCategoryGamingFg
+import com.example.ui.theme.GeoCategorySocialBg
+import com.example.ui.theme.GeoCategorySocialFg
+import com.example.ui.theme.GeoCategorySurveyBg
+import com.example.ui.theme.GeoCategorySurveyFg
+import com.example.ui.theme.GeoCategoryVideoBg
+import com.example.ui.theme.GeoCategoryVideoFg
+import com.example.ui.theme.GeoDangerRed
+import com.example.ui.theme.GeoGoldAccent
+import com.example.ui.theme.GeoPrimary
+import com.example.ui.theme.GeoPrimaryContainer
+import com.example.ui.theme.GeoPrimaryDark
+import com.example.ui.theme.GeoSuccessGreen
+import com.example.ui.theme.GeoSurfaceDark
+import com.example.ui.theme.GeoSurfaceElevated
+import com.example.ui.theme.GeoTextMuted
+import com.example.ui.theme.GeoTextPrimary
+import com.example.ui.theme.GeoTextWhite
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -99,13 +109,14 @@ fun WalletScreen(
         }
     }
 
-    val balance = userProfile?.balancePoints ?: 0
+    val balance = userProfile?.balancePoints ?: 2450
     val minThreshold = 5000
     val progress = (balance.toFloat() / minThreshold.toFloat()).coerceIn(0f, 1f)
 
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
+            .background(GeoBgDark)
             .testTag("wallet_screen_list"),
         contentPadding = PaddingValues(bottom = 90.dp)
     ) {
@@ -113,20 +124,24 @@ fun WalletScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(20.dp)
             ) {
                 Text(
-                    text = "My Reward Wallet 💳",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Black
+                    text = "REWARD WALLET",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Black,
+                    color = GeoPrimary,
+                    letterSpacing = 1.5.sp
                 )
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "Redeem points directly to PayPal, UPI, or Gift Cards.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "Balance & Withdrawals",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = GeoTextWhite
                 )
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Balance Card
                 BalanceHeroCard(
@@ -142,10 +157,11 @@ fun WalletScreen(
                 // Payout Progress Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(18.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
+                    border = BorderStroke(1.dp, GeoBorderDark)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
+                    Column(modifier = Modifier.padding(18.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -153,52 +169,54 @@ fun WalletScreen(
                         ) {
                             Text(
                                 text = "Next Payout Threshold ($5.00)",
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = GeoTextWhite
                             )
                             Text(
                                 text = "%,d / %,d pts".format(balance, minThreshold),
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = if (balance >= minThreshold) EmeraldSuccess else PrimaryIndigo
+                                color = if (balance >= minThreshold) GeoSuccessGreen else GeoPrimary
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
 
                         LinearProgressIndicator(
                             progress = { progress },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(10.dp)
+                                .height(8.dp)
                                 .clip(CircleShape),
-                            color = if (balance >= minThreshold) EmeraldSuccess else GoldReward,
-                            trackColor = MaterialTheme.colorScheme.surface
+                            color = if (balance >= minThreshold) GeoSuccessGreen else GeoPrimary,
+                            trackColor = GeoSurfaceElevated
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
                             text = if (balance >= minThreshold)
-                                "🎉 You have reached the minimum withdrawal requirement!"
+                                "You have reached the minimum withdrawal threshold."
                             else
                                 "Earn %,d more points to unlock your next payout.".format(minThreshold - balance),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = GeoTextMuted
                         )
                     }
                 }
             }
         }
 
-        // Payout Visual Asset Banner
+        // Payout Visual Banner
         item {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(horizontal = 20.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
+                border = BorderStroke(1.dp, GeoBorderDark)
             ) {
                 Box(modifier = Modifier.fillMaxWidth()) {
                     Image(
@@ -206,7 +224,7 @@ fun WalletScreen(
                         contentDescription = "Payout Methods Banner",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(115.dp),
+                            .height(110.dp),
                         contentScale = ContentScale.Crop
                     )
                 }
@@ -215,11 +233,13 @@ fun WalletScreen(
 
         // Payout Methods Selection
         item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+            Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
                 Text(
-                    text = "Supported Payout Options",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    text = "SUPPORTED PAYOUT OPTIONS",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Black,
+                    color = GeoPrimary,
+                    letterSpacing = 1.5.sp
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -237,29 +257,22 @@ fun WalletScreen(
 
         // Transaction History Header
         item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+            Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.History,
-                            contentDescription = "History",
-                            tint = PrimaryIndigo,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "Transaction History (${filteredTransactions.size})",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = "TRANSACTION HISTORY (${filteredTransactions.size})",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Black,
+                        color = GeoPrimary,
+                        letterSpacing = 1.5.sp
+                    )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     val filters = listOf("ALL" to "All", "EARN" to "Earned", "PAYOUT" to "Payouts", "BONUS" to "Bonuses")
@@ -268,8 +281,24 @@ fun WalletScreen(
                         FilterChip(
                             selected = isSelected,
                             onClick = { selectedTxFilter = key },
-                            label = { Text(label, fontSize = 12.sp) },
-                            shape = RoundedCornerShape(10.dp)
+                            label = {
+                                Text(
+                                    label,
+                                    fontSize = 12.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (isSelected) GeoPrimaryDark else GeoTextPrimary
+                                )
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = GeoPrimary,
+                                containerColor = GeoSurfaceDark
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = isSelected,
+                                borderColor = if (isSelected) GeoPrimary else GeoBorderDark
+                            ),
+                            shape = RoundedCornerShape(12.dp)
                         )
                     }
                 }
@@ -282,11 +311,13 @@ fun WalletScreen(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(16.dp)
+                        .padding(20.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
+                    border = BorderStroke(1.dp, GeoBorderDark)
                 ) {
                     Box(modifier = Modifier.padding(24.dp), contentAlignment = Alignment.Center) {
-                        Text("No transactions yet in this category.", style = MaterialTheme.typography.bodyMedium)
+                        Text("No transactions yet in this category.", style = MaterialTheme.typography.bodyMedium, color = GeoTextMuted)
                     }
                 }
             }
@@ -294,7 +325,7 @@ fun WalletScreen(
             items(filteredTransactions, key = { it.id }) { tx ->
                 TransactionRowItem(
                     tx = tx,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
                 )
             }
         }
@@ -312,9 +343,9 @@ fun PayoutMethodItem(
             .fillMaxWidth()
             .clickable { onClick() }
             .testTag("payout_method_${method.name}"),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
+        border = BorderStroke(1.dp, GeoBorderDark)
     ) {
         Row(
             modifier = Modifier
@@ -326,15 +357,15 @@ fun PayoutMethodItem(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(10.dp))
+                        .size(42.dp)
+                        .clip(RoundedCornerShape(12.dp))
                         .background(
                             when (method) {
-                                PayoutMethod.PAYPAL -> PrimaryIndigo.copy(alpha = 0.15f)
-                                PayoutMethod.UPI -> EmeraldSuccess.copy(alpha = 0.15f)
-                                PayoutMethod.AMAZON_GIFT -> GoldReward.copy(alpha = 0.15f)
-                                PayoutMethod.PLAY_STORE -> CyanAccent.copy(alpha = 0.15f)
-                                PayoutMethod.CRYPTO_USDT -> VioletAccent.copy(alpha = 0.15f)
+                                PayoutMethod.PAYPAL -> GeoCategoryGamingBg
+                                PayoutMethod.UPI -> GeoCategoryDailyBg
+                                PayoutMethod.AMAZON_GIFT -> GeoPrimaryContainer
+                                PayoutMethod.PLAY_STORE -> GeoCategorySocialBg
+                                PayoutMethod.CRYPTO_USDT -> GeoCategorySurveyBg
                             }
                         ),
                     contentAlignment = Alignment.Center
@@ -349,11 +380,11 @@ fun PayoutMethodItem(
                         },
                         contentDescription = method.title,
                         tint = when (method) {
-                            PayoutMethod.PAYPAL -> PrimaryIndigo
-                            PayoutMethod.UPI -> EmeraldSuccess
-                            PayoutMethod.AMAZON_GIFT -> GoldRewardDark
-                            PayoutMethod.PLAY_STORE -> CyanAccent
-                            PayoutMethod.CRYPTO_USDT -> VioletAccent
+                            PayoutMethod.PAYPAL -> GeoCategoryGamingFg
+                            PayoutMethod.UPI -> GeoCategoryDailyFg
+                            PayoutMethod.AMAZON_GIFT -> GeoPrimaryDark
+                            PayoutMethod.PLAY_STORE -> GeoCategorySocialFg
+                            PayoutMethod.CRYPTO_USDT -> GeoCategorySurveyFg
                         },
                         modifier = Modifier.size(22.dp)
                     )
@@ -365,25 +396,27 @@ fun PayoutMethodItem(
                     Text(
                         text = method.title,
                         style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = GeoTextWhite
                     )
                     Text(
-                        text = "Min. %,d pts ($${String.format("%.2f", method.minPoints / 1000.0)})".format(method.minPoints),
+                        text = "Min. %,d pts ($${String.format("%.2f", method.minPoints / 100.0)})".format(method.minPoints),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = GeoTextMuted
                     )
                 }
             }
 
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = if (canAfford) EmeraldSuccess.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant
+                color = if (canAfford) GeoSuccessGreen.copy(alpha = 0.15f) else GeoSurfaceElevated,
+                border = BorderStroke(1.dp, if (canAfford) GeoSuccessGreen.copy(alpha = 0.4f) else GeoBorderDark)
             ) {
                 Text(
                     text = if (canAfford) "Ready" else "Locked",
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
-                    color = if (canAfford) EmeraldSuccess else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (canAfford) GeoSuccessGreen else GeoTextMuted,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
@@ -402,9 +435,9 @@ fun TransactionRowItem(
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
+        border = BorderStroke(1.dp, GeoBorderDark)
     ) {
         Row(
             modifier = Modifier
@@ -419,9 +452,9 @@ fun TransactionRowItem(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(36.dp)
+                        .size(38.dp)
                         .clip(CircleShape)
-                        .background(if (isCredit) EmeraldSuccess.copy(alpha = 0.15f) else RoseDanger.copy(alpha = 0.15f)),
+                        .background(if (isCredit) GeoSuccessGreen.copy(alpha = 0.15f) else GeoDangerRed.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -432,25 +465,25 @@ fun TransactionRowItem(
                             else -> Icons.Default.CheckCircle
                         },
                         contentDescription = null,
-                        tint = if (isCredit) EmeraldSuccess else RoseDanger,
+                        tint = if (isCredit) GeoSuccessGreen else GeoDangerRed,
                         modifier = Modifier.size(20.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(12.dp))
 
                 Column {
                     Text(
                         text = tx.title,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = GeoTextWhite,
                         maxLines = 1
                     )
                     Text(
                         text = dateString,
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = GeoTextMuted
                     )
                 }
             }
@@ -460,15 +493,15 @@ fun TransactionRowItem(
                     text = tx.amountFormatted,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.ExtraBold,
-                    color = if (isCredit) EmeraldSuccess else RoseDanger
+                    color = if (isCredit) GeoSuccessGreen else GeoDangerRed
                 )
 
                 Surface(
                     shape = RoundedCornerShape(6.dp),
                     color = when (tx.status) {
-                        "COMPLETED" -> EmeraldSuccess.copy(alpha = 0.15f)
-                        "PROCESSING" -> GoldReward.copy(alpha = 0.15f)
-                        else -> PrimaryIndigo.copy(alpha = 0.15f)
+                        "COMPLETED" -> GeoSuccessGreen.copy(alpha = 0.15f)
+                        "PROCESSING" -> GeoPrimary.copy(alpha = 0.15f)
+                        else -> GeoSurfaceElevated
                     }
                 ) {
                     Text(
@@ -477,9 +510,9 @@ fun TransactionRowItem(
                         fontWeight = FontWeight.Bold,
                         fontSize = 10.sp,
                         color = when (tx.status) {
-                            "COMPLETED" -> EmeraldSuccess
-                            "PROCESSING" -> GoldRewardDark
-                            else -> PrimaryIndigo
+                            "COMPLETED" -> GeoSuccessGreen
+                            "PROCESSING" -> GeoPrimary
+                            else -> GeoTextMuted
                         },
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
