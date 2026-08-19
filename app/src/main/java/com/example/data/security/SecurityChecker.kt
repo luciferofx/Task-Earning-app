@@ -6,12 +6,14 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import android.provider.Settings
 import com.example.data.model.SecurityAuditResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 object SecurityChecker {
 
-    fun performFullSecurityAudit(context: Context): SecurityAuditResult {
-        val isRooted = checkRootMethod1() || checkRootMethod2() || checkRootMethod3()
+    suspend fun performFullSecurityAudit(context: Context): SecurityAuditResult = withContext(Dispatchers.IO) {
+        val isRooted = checkRootFast()
         val isVpn = checkVpnActive(context)
         val deviceId = getDeviceFingerprint(context)
 
@@ -27,7 +29,7 @@ object SecurityChecker {
             else -> "Secure & Verified: Device integrity passed. All rewards available."
         }
 
-        return SecurityAuditResult(
+        SecurityAuditResult(
             isRooted = isRooted,
             isVpnOrProxy = isVpn,
             deviceId = deviceId,
@@ -37,22 +39,18 @@ object SecurityChecker {
         )
     }
 
-    private fun checkRootMethod1(): Boolean {
+    private fun checkRootFast(): Boolean {
+        // Fast non-blocking root detection
         val buildTags = Build.TAGS
-        return buildTags != null && buildTags.contains("test-keys")
-    }
+        if (buildTags != null && buildTags.contains("test-keys")) {
+            return true
+        }
 
-    private fun checkRootMethod2(): Boolean {
         val paths = arrayOf(
             "/system/app/Superuser.apk",
-            "/sbin/su",
             "/system/bin/su",
             "/system/xbin/su",
-            "/data/local/xbin/su",
-            "/data/local/bin/su",
-            "/system/sd/xbin/su",
-            "/system/bin/failsafe/su",
-            "/data/local/su"
+            "/sbin/su"
         )
         return paths.any { path ->
             try {
@@ -60,19 +58,6 @@ object SecurityChecker {
             } catch (e: Exception) {
                 false
             }
-        }
-    }
-
-    private fun checkRootMethod3(): Boolean {
-        var process: Process? = null
-        return try {
-            process = Runtime.getRuntime().exec(arrayOf("/system/xbin/which", "su"))
-            val inStream = process.inputStream.bufferedReader()
-            inStream.readLine() != null
-        } catch (t: Throwable) {
-            false
-        } finally {
-            process?.destroy()
         }
     }
 
@@ -92,7 +77,7 @@ object SecurityChecker {
             val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
             val model = Build.MODEL.replace(" ", "-")
             val brand = Build.MANUFACTURER.uppercase()
-            "${brand}-${model}-${(androidId ?: "UNKNOWN").takeLast(6)}"
+            "${brand}-${model}-${(androidId ?: "DEV101").takeLast(6)}"
         } catch (e: Exception) {
             "DEV-${Build.BOARD}-9481"
         }

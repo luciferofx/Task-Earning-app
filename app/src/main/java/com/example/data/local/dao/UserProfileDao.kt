@@ -16,6 +16,9 @@ interface UserProfileDao {
     @Query("SELECT * FROM user_profiles LIMIT 1")
     suspend fun getUserProfileOnce(): UserProfileEntity?
 
+    @Query("SELECT * FROM user_profiles")
+    fun getAllUsers(): Flow<List<UserProfileEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProfile(profile: UserProfileEntity)
 
@@ -33,4 +36,7 @@ interface UserProfileDao {
 
     @Query("UPDATE user_profiles SET isVpnDetected = :vpn, isRootDetected = :root")
     suspend fun updateSecurityFlags(vpn: Boolean, root: Boolean)
+
+    @Query("DELETE FROM user_profiles")
+    suspend fun clearProfile()
 }

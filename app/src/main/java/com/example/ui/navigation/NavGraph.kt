@@ -40,10 +40,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.ui.components.AuthDialog
+import com.example.data.model.UserRole
 import com.example.ui.components.PayoutRequestDialog
 import com.example.ui.components.ProofSubmitDialog
 import com.example.ui.components.SecurityAuditDialog
+import com.example.ui.screens.AdminDashboardScreen
+import com.example.ui.screens.AuthScreen
 import com.example.ui.screens.HomeScreen
 import com.example.ui.screens.ProfileScreen
 import com.example.ui.screens.TaskDetailScreen
@@ -79,6 +81,57 @@ fun TaskEarnApp(viewModel: TaskViewModel) {
         }
     }
 
+    // Role-based top routing: Not Logged in -> Auth Screen
+    if (!uiState.isLoggedIn) {
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) }
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                AuthScreen(
+                    isLoading = uiState.isLoading,
+                    onLogin = { id, pass -> viewModel.login(id, pass) },
+                    onRegister = { name, email, phone, pass, ref -> viewModel.register(name, email, phone, pass, ref) }
+                )
+            }
+        }
+        return
+    }
+
+    // If Admin Role -> Show Admin Dashboard
+    if (uiState.currentRole == UserRole.ADMIN) {
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) }
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                AdminDashboardScreen(
+                    tasks = uiState.tasks,
+                    transactions = uiState.transactions,
+                    securityAudit = uiState.securityAudit,
+                    onApproveProof = { viewModel.adminApproveProof(it) },
+                    onRejectProof = { id, reason -> viewModel.adminRejectProof(id, reason) },
+                    onCreateTask = { title, desc, cat, pts, mins, instr, proofReq ->
+                        viewModel.adminCreateTask(title, desc, cat, pts, mins, instr, proofReq)
+                    },
+                    onDeleteTask = { viewModel.adminDeleteTask(it) },
+                    onApprovePayout = { viewModel.adminApprovePayout(it) },
+                    onRejectPayout = { id, refund -> viewModel.adminRejectPayout(id, refund) },
+                    onSwitchToUserMode = { viewModel.switchRole(UserRole.USER) },
+                    onLogout = { viewModel.logout() }
+                )
+            }
+        }
+        return
+    }
+
+    // Standard Earner Screen
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
@@ -174,7 +227,9 @@ fun TaskEarnApp(viewModel: TaskViewModel) {
                             userProfile = uiState.userProfile,
                             securityAudit = uiState.securityAudit,
                             onOpenAuthDialog = { viewModel.toggleAuthDialog(true) },
-                            onOpenSecurityDialog = { viewModel.toggleSecurityDialog(true) }
+                            onOpenSecurityDialog = { viewModel.toggleSecurityDialog(true) },
+                            onSwitchToAdmin = { viewModel.switchRole(UserRole.ADMIN) },
+                            onLogout = { viewModel.logout() }
                         )
                     }
                 }
@@ -203,15 +258,6 @@ fun TaskEarnApp(viewModel: TaskViewModel) {
                     onDismiss = { viewModel.togglePayoutDialog(false) },
                     onRequest = { method, account, points ->
                         viewModel.requestPayout(method, account, points)
-                    }
-                )
-            }
-
-            if (uiState.showAuthDialog) {
-                AuthDialog(
-                    onDismiss = { viewModel.toggleAuthDialog(false) },
-                    onLogin = { name, email, isGoogle ->
-                        viewModel.loginUser(name, email, isGoogle)
                     }
                 )
             }

@@ -24,9 +24,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Button
@@ -40,6 +44,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +59,12 @@ import com.example.data.model.SecurityAuditResult
 import com.example.ui.theme.GeoBgDark
 import com.example.ui.theme.GeoBorderDark
 import com.example.ui.theme.GeoBorderMuted
+import com.example.ui.theme.GeoCategoryDailyBg
+import com.example.ui.theme.GeoCategoryDailyFg
+import com.example.ui.theme.GeoCategorySocialBg
+import com.example.ui.theme.GeoCategorySocialFg
+import com.example.ui.theme.GeoDangerRed
+import com.example.ui.theme.GeoGoldAccent
 import com.example.ui.theme.GeoPrimary
 import com.example.ui.theme.GeoPrimaryContainer
 import com.example.ui.theme.GeoPrimaryDark
@@ -70,11 +81,16 @@ fun ProfileScreen(
     securityAudit: SecurityAuditResult?,
     onOpenAuthDialog: () -> Unit,
     onOpenSecurityDialog: () -> Unit,
+    onSwitchToAdmin: () -> Unit = {},
+    onLogout: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val referralCode = userProfile?.referralCode ?: "EARN99X"
-    val userName = userProfile?.name ?: "Alex Rivera"
+    val referralCode = userProfile?.referralCode ?: "INDIA99X"
+    val userName = userProfile?.name ?: "Rahul Sharma"
+    val userEmail = userProfile?.email ?: "rahul.sharma@gmail.com"
+    val userPhone = userProfile?.phoneNumber ?: "+91 98765 43210"
+    val userUpi = userProfile?.upiVpa ?: "rahul.sharma@paytm"
 
     LazyColumn(
         modifier = modifier
@@ -104,7 +120,7 @@ fun ProfileScreen(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(56.dp)
+                                .size(60.dp)
                                 .clip(CircleShape)
                                 .background(GeoSurfaceElevated),
                             contentAlignment = Alignment.Center
@@ -126,64 +142,72 @@ fun ProfileScreen(
                             }
                         }
 
-                        Spacer(modifier = Modifier.width(14.dp))
+                        Spacer(modifier = Modifier.width(16.dp))
 
                         Column(modifier = Modifier.weight(1f)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = userName,
                                     style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Black,
                                     color = GeoTextWhite
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Icon(
                                     imageVector = Icons.Default.CheckCircle,
-                                    contentDescription = "Verified",
-                                    tint = GeoPrimary,
+                                    contentDescription = "Verified Indian Earner",
+                                    tint = GeoSuccessGreen,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
                             Text(
-                                text = userProfile?.email ?: "alex.rivera@example.com",
+                                text = userEmail,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = GeoTextMuted
                             )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Phone, contentDescription = null, tint = GeoPrimary, modifier = Modifier.size(12.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = userPhone,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = GeoPrimary,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(color = GeoBorderDark, thickness = 1.dp)
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    HorizontalDivider(color = GeoBorderDark.copy(alpha = 0.8f))
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    // Stats Quick Row in Geometric Boxes
+                    // Stats Grid
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         ProfileStatItem(
-                            label = "TOTAL EARNED",
-                            value = "+%,d".format(userProfile?.totalEarnedPoints ?: 14500),
+                            label = "BALANCE (₹)",
+                            value = "₹${(userProfile?.balancePoints ?: 4850) / 10}",
                             color = GeoPrimary
                         )
                         ProfileStatItem(
-                            label = "WITHDRAWN",
-                            value = "%,d".format(userProfile?.totalWithdrawnPoints ?: 9650),
-                            color = GeoSuccessGreen
+                            label = "TOTAL EARNED",
+                            value = "₹${(userProfile?.totalEarnedPoints ?: 14500) / 10}",
+                            color = GeoGoldAccent
                         )
                         ProfileStatItem(
-                            label = "COMPLETED",
-                            value = "${userProfile?.completedTasksCount ?: 7} Tasks",
-                            color = GeoTextWhite
+                            label = "TASKS DONE",
+                            value = "${userProfile?.completedTasksCount ?: 8}",
+                            color = GeoSuccessGreen
                         )
                     }
                 }
             }
         }
 
-        // Referral & Invite Bonus Card
+        // UPI & Payment Info Card
         item {
             Card(
                 modifier = Modifier
@@ -193,44 +217,113 @@ fun ProfileScreen(
                 colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
                 border = BorderStroke(1.dp, GeoBorderDark)
             ) {
-                Column(modifier = Modifier.padding(18.dp)) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(42.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(GeoPrimaryContainer),
+                                .size(40.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(GeoCategoryDailyBg),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.People,
-                                contentDescription = null,
-                                tint = GeoPrimaryDark,
-                                modifier = Modifier.size(22.dp)
-                            )
+                            Icon(Icons.Default.Payment, contentDescription = null, tint = GeoCategoryDailyFg, modifier = Modifier.size(22.dp))
                         }
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
-                                text = "Refer Friends & Earn 500 pts",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = GeoTextWhite
+                                text = "Default Indian UPI ID",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = GeoTextMuted,
+                                fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "Earn 500 bonus points for every friend who joins.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = GeoTextMuted
+                                text = userUpi,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Black,
+                                color = GeoTextWhite
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = GeoCategoryDailyBg
+                    ) {
+                        Text(
+                            text = "INSTANT UPI",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp,
+                            color = GeoCategoryDailyFg,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        // Indian Referral Card
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 6.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = GeoSurfaceDark),
+                border = BorderStroke(1.dp, GeoBorderDark)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.People,
+                                contentDescription = null,
+                                tint = GeoGoldAccent,
+                                modifier = Modifier.size(22.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Refer & Earn ₹50 Per Friend",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = GeoTextWhite
+                            )
+                        }
+
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = GeoPrimaryContainer
+                        ) {
+                            Text(
+                                text = "+500 PTS",
+                                fontWeight = FontWeight.Black,
+                                fontSize = 10.sp,
+                                color = GeoPrimaryDark,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Surface(
-                        shape = RoundedCornerShape(14.dp),
+                        shape = RoundedCornerShape(12.dp),
                         color = GeoSurfaceElevated,
-                        border = BorderStroke(1.dp, GeoBorderDark)
+                        border = BorderStroke(1.dp, GeoBorderDark),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
                             modifier = Modifier
@@ -244,8 +337,7 @@ fun ProfileScreen(
                                     text = "YOUR REFERRAL CODE",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = GeoTextMuted,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 10.sp,
+                                    fontSize = 9.sp,
                                     letterSpacing = 1.sp
                                 )
                                 Text(
@@ -329,27 +421,20 @@ fun ProfileScreen(
                             Text("Audit", fontSize = 12.sp, color = GeoPrimary)
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = "Hardware fingerprint validation, su-binary check, and proxy-tunnel status.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = GeoTextMuted
-                    )
                 }
             }
         }
 
-        // Account Switch / Link
+        // Admin Portal & Logout Actions
         item {
             Column(modifier = Modifier.padding(20.dp)) {
+                // Quick Admin Switch Portal
                 Button(
-                    onClick = onOpenAuthDialog,
+                    onClick = onSwitchToAdmin,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
-                        .testTag("switch_account_btn"),
+                        .testTag("admin_portal_btn"),
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = GeoSurfaceElevated,
@@ -357,9 +442,27 @@ fun ProfileScreen(
                     ),
                     border = BorderStroke(1.dp, GeoBorderDark)
                 ) {
-                    Icon(Icons.Default.VerifiedUser, contentDescription = null, tint = GeoPrimary)
+                    Icon(Icons.Default.AdminPanelSettings, contentDescription = null, tint = GeoPrimary)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Switch / Link Google Account", fontWeight = FontWeight.Bold)
+                    Text("Admin Dashboard Portal", fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Logout Button
+                OutlinedButton(
+                    onClick = onLogout,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .testTag("logout_btn"),
+                    shape = RoundedCornerShape(14.dp),
+                    border = BorderStroke(1.dp, GeoDangerRed.copy(alpha = 0.5f)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = GeoDangerRed)
+                ) {
+                    Icon(Icons.Default.ExitToApp, contentDescription = null, tint = GeoDangerRed)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Logout of Account", fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -390,3 +493,4 @@ fun ProfileStatItem(
         )
     }
 }
+

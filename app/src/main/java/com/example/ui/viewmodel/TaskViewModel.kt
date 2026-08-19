@@ -14,18 +14,20 @@ import com.example.data.model.SecurityAuditResult
 import com.example.data.model.SubmitProofRequest
 import com.example.data.model.TaskCategory
 import com.example.data.model.TaskStatus
+import com.example.data.model.UserRole
 import com.example.data.repository.TaskEarnRepository
 import com.example.data.security.SecurityChecker
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 data class TaskUiState(
+    val isLoggedIn: Boolean = false,
+    val currentRole: UserRole = UserRole.USER,
     val tasks: List<TaskEntity> = emptyList(),
     val filteredTasks: List<TaskEntity> = emptyList(),
     val selectedCategory: TaskCategory = TaskCategory.ALL,
@@ -35,7 +37,7 @@ data class TaskUiState(
     val currentSelectedTask: TaskEntity? = null,
     val userProfile: UserProfileEntity? = null,
     val transactions: List<TransactionEntity> = emptyList(),
-    val selectedCurrency: Currency = Currency.USD,
+    val selectedCurrency: Currency = Currency.INR, // Default to Indian Rupee ₹
     val securityAudit: SecurityAuditResult? = null,
     val isLoading: Boolean = false,
     val isSubmittingProof: Boolean = false,
@@ -45,7 +47,8 @@ data class TaskUiState(
     val showPayoutDialog: Boolean = false,
     val showProofDialog: Boolean = false,
     val showSecurityDialog: Boolean = false,
-    val showStreakCelebration: Boolean = false
+    val showStreakCelebration: Boolean = false,
+    val showAdminCreateTaskDialog: Boolean = false
 )
 
 class TaskViewModel(application: Application) : AndroidViewModel(application) {
@@ -53,7 +56,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     private val db = AppDatabase.getDatabase(application)
     private val repository = TaskEarnRepository(db.taskDao(), db.transactionDao(), db.userProfileDao())
 
-    private val _uiState = MutableStateFlow(TaskUiState(isLoading = true))
+    private val _uiState = MutableStateFlow(TaskUiState(isLoading = false))
     val uiState: StateFlow<TaskUiState> = _uiState
 
     init {
@@ -62,7 +65,6 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
             refreshSecurityAudit()
         }
 
-        // Combine reactive Room flows into StateFlow
         viewModelScope.launch {
             combine(
                 repository.tasks,
@@ -88,6 +90,173 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         }
+    }
+
+    // Unified Login with Admin Detection
+    fun login(emailOrPhone: String, password: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            delay(400) // Brief animation feel
+
+            val cleanInput = emailOrPhone.trim().lowercase()
+            val cleanPass = password.trim()
+
+            val isAdmin = (cleanInput in listOf("admin", "admin@taskearn.in", "admin@taskearn.com", "admin@gmail.com", "root") &&
+                    cleanPass in listOf("admin", "admin123", "admin@123", "password", "adminpass")) ||
+                    (cleanPass == "admin123" && cleanInput.contains("admin")) ||
+                    (cleanPass == "admin" && cleanInput == "admin")
+
+            if (isAdmin) {
+                // Route to Admin Dashboard
+                repository.loginUser(emailOrPhone, "ADMIN")
+                _uiState.update {
+                    it.copy(
+                        isLoggedIn = true,
+                        currentRole = UserRole.ADMIN,
+                        isLoading = false,
+                        bannerMessage = "🛡️ Logged in as Admin! Welcome to TaskEarn Admin Console."
+                    )
+                }
+            } else {
+                // Regular Indian Earner Login
+                val profile = repository.loginUser(emailOrPhone, "USER")
+                _uiState.update {
+                    it.copy(
+                        isLoggedIn = true,
+                        currentRole = UserRole.USER,
+                        isLoading = false,
+                        bannerMessage = "Welcome back, ${profile.name}! Ready to earn ₹ today?"
+                    )
+                }
+            }
+        }
+    }
+
+    // Register Indian User with Welcome Bonus
+    fun register(name: String, email: String, phone: String, password: String, referral: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            delay(500)
+
+            val profile = repository.registerUser(
+                name = name.ifBlank { "Rahul Sharma" },
+                email = email.ifBlank { "rahul@gmail.com" },
+                phone = phone.ifBlank { "+91 98765 43210" },
+                referral = referral
+            )
+
+            val bonusText = if (referral.isNotBlank()) "₹50 Referral Bonus" else "₹25 Signup Bonus"
+            _uiState.update {
+                it.copy(
+                    isLoggedIn = true,
+                    currentRole = UserRole.USER,
+                    isLoading = false,
+                    bannerMessage = "🎉 Account registered! $bonusText credited to your wallet."
+                )
+            }
+        }
+    }
+
+    fun logout() {
+        _uiState.update {
+            it.copy(
+                isLoggedIn = false,
+                currentRole = UserRole.USER,
+                bannerMessage = "You have been logged out."
+            )
+        }
+    }
+
+    fun switchRole(newRole: UserRole) {
+        _uiState.update {
+            it.copy(
+                currentRole = newRole,
+                bannerMessage = if (newRole == UserRole.ADMIN) "🛡️ Switched to Admin Dashboard" else "👤 Switched to Earner View"
+            )
+        }
+    }
+
+    // Admin Actions
+    fun adminApproveProof(taskId: String) {
+        viewModelScope.launch {
+            repository.adminApproveProof(taskId)
+            _uiState.update {
+                it.copy(bannerMessage = "✅ Task submission approved & points credited to user!")
+            }
+        }
+    }
+
+    fun adminRejectProof(taskId: String, reason: String = "Incomplete submission") {
+        viewModelScope.launch {
+            repository.adminRejectProof(taskId, reason)
+            _uiState.update {
+                it.copy(bannerMessage = "❌ Submission rejected ($reason).")
+            }
+        }
+    }
+
+    fun adminCreateTask(
+        title: String,
+        description: String,
+        category: TaskCategory,
+        points: Int,
+        minutes: Int,
+        instructions: String,
+        proofReq: String
+    ) {
+        viewModelScope.launch {
+            val newTask = TaskEntity(
+                id = "in_task_${UUID.randomUUID().toString().take(6)}",
+                title = title,
+                description = description,
+                category = category,
+                pointsReward = points,
+                durationMinutes = minutes,
+                status = TaskStatus.AVAILABLE,
+                iconType = category.iconName,
+                isFeatured = true,
+                instructions = instructions.ifBlank { "1. Open the task link.\n2. Complete the required steps.\n3. Submit proof." },
+                proofRequirement = proofReq.ifBlank { "Screenshot or confirmation ID." }
+            )
+            repository.adminCreateTask(newTask)
+            _uiState.update {
+                it.copy(
+                    showAdminCreateTaskDialog = false,
+                    bannerMessage = "🚀 New task created and published live!"
+                )
+            }
+        }
+    }
+
+    fun adminDeleteTask(taskId: String) {
+        viewModelScope.launch {
+            repository.adminDeleteTask(taskId)
+            _uiState.update {
+                it.copy(bannerMessage = "🗑️ Task deleted successfully.")
+            }
+        }
+    }
+
+    fun adminApprovePayout(transactionId: String) {
+        viewModelScope.launch {
+            repository.adminApprovePayout(transactionId)
+            _uiState.update {
+                it.copy(bannerMessage = "💸 UPI Payout approved & marked as COMPLETED!")
+            }
+        }
+    }
+
+    fun adminRejectPayout(transactionId: String, refundPoints: Int = 2500) {
+        viewModelScope.launch {
+            repository.adminRejectPayout(transactionId, refundPoints)
+            _uiState.update {
+                it.copy(bannerMessage = "Payout request rejected and $refundPoints pts refunded.")
+            }
+        }
+    }
+
+    fun toggleAdminCreateTaskDialog(show: Boolean) {
+        _uiState.update { it.copy(showAdminCreateTaskDialog = show) }
     }
 
     fun selectCategory(category: TaskCategory) {
@@ -131,11 +300,11 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             _uiState.update { it.copy(isSubmittingProof = true) }
             val profile = _uiState.value.userProfile
-            val deviceId = _uiState.value.securityAudit?.deviceId ?: "DEV-AUTO-901"
+            val deviceId = _uiState.value.securityAudit?.deviceId ?: "IN-DEV-901"
 
             val req = SubmitProofRequest(
                 taskId = taskId,
-                userId = profile?.userId ?: "usr_anon",
+                userId = profile?.userId ?: "usr_rahul",
                 proofUrl = proofUrl,
                 proofNote = proofNote,
                 screenshotLocalPath = screenshotPath,
@@ -150,13 +319,6 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                     bannerMessage = res.message
                 )
             }
-
-            // Simulate automatic moderator verification after 5 seconds for interactive satisfaction
-            delay(5000)
-            repository.approveAndCreditTask(taskId)
-            _uiState.update {
-                it.copy(bannerMessage = "🎉 Hooray! Your submitted task was verified & points credited to your wallet!")
-            }
         }
     }
 
@@ -170,13 +332,13 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
             val profile = _uiState.value.userProfile
             val currency = _uiState.value.selectedCurrency
             val equivalent = when (currency) {
+                Currency.INR -> points / 10.0
                 Currency.USD -> points / 1000.0
-                Currency.INR -> points / 12.0
                 Currency.EUR -> points / 1080.0
             }
 
             val req = PayoutRequest(
-                userId = profile?.userId ?: "usr_anon",
+                userId = profile?.userId ?: "usr_rahul",
                 payoutMethod = method.title,
                 destinationAccount = account,
                 pointsToRedeem = points,
@@ -202,7 +364,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                 _uiState.update {
                     it.copy(
                         showStreakCelebration = true,
-                        bannerMessage = "⭐ Day $day bonus claimed! +$points points added."
+                        bannerMessage = "⭐ Day $day bonus claimed! +$points pts (₹${points / 10}) added."
                     )
                 }
             }
@@ -210,19 +372,9 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun refreshSecurityAudit() {
-        val audit = SecurityChecker.performFullSecurityAudit(getApplication())
-        _uiState.update { it.copy(securityAudit = audit) }
-    }
-
-    fun loginUser(name: String, email: String, isGoogle: Boolean) {
         viewModelScope.launch {
-            repository.updateUserProfile(name, email)
-            _uiState.update {
-                it.copy(
-                    showAuthDialog = false,
-                    bannerMessage = "Signed in as $name ($email)"
-                )
-            }
+            val audit = SecurityChecker.performFullSecurityAudit(getApplication())
+            _uiState.update { it.copy(securityAudit = audit) }
         }
     }
 

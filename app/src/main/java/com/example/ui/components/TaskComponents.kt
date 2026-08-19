@@ -918,9 +918,9 @@ fun PayoutRequestDialog(
     onDismiss: () -> Unit,
     onRequest: (method: PayoutMethod, accountDetail: String, pointsToWithdraw: Int) -> Unit
 ) {
-    var selectedMethod by remember { mutableStateOf(PayoutMethod.PAYPAL) }
+    var selectedMethod by remember { mutableStateOf(PayoutMethod.UPI_INSTANT) }
     var accountInput by remember { mutableStateOf("") }
-    var pointsAmount by remember { mutableIntStateOf(5000) }
+    var pointsAmount by remember { mutableIntStateOf(1000) }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -1007,11 +1007,12 @@ fun PayoutRequestDialog(
                     label = {
                         Text(
                             when (selectedMethod) {
-                                PayoutMethod.PAYPAL -> "PayPal Email Address"
-                                PayoutMethod.UPI -> "UPI Virtual Payment Address (e.g. name@okhdfcbank)"
-                                PayoutMethod.AMAZON_GIFT -> "Email for Amazon e-Gift Code"
-                                PayoutMethod.PLAY_STORE -> "Email for Google Play Gift Code"
-                                PayoutMethod.CRYPTO_USDT -> "USDT (TRC20 / BEP20) Wallet Address"
+                                PayoutMethod.UPI_INSTANT -> "UPI ID (e.g. yourname@okhdfcbank / paytm)"
+                                PayoutMethod.PAYTM_WALLET -> "Paytm Registered Mobile Number (+91)"
+                                PayoutMethod.AMAZON_PAY_IN -> "Email for Amazon Pay India Gift Voucher"
+                                PayoutMethod.GOOGLE_PLAY_IN -> "Email for Google Play Redeem Code (₹)"
+                                PayoutMethod.BANK_IMPS -> "Account Number & IFSC Code"
+                                PayoutMethod.CRYPTO_USDT -> "USDT (TRC20 / Polygon) Address"
                             }
                         )
                     },

@@ -1,5 +1,20 @@
 package com.example.data.model
 
+enum class UserRole {
+    USER,
+    ADMIN
+}
+
+data class AuthUser(
+    val id: String,
+    val name: String,
+    val email: String,
+    val phone: String = "",
+    val role: UserRole = UserRole.USER,
+    val avatarUrl: String = "",
+    val referralCode: String = "EARN99X"
+)
+
 enum class TaskCategory(val displayName: String, val iconName: String) {
     ALL("All Tasks", "all"),
     APP_DOWNLOAD("App Install", "download"),
@@ -16,17 +31,24 @@ enum class TaskStatus(val displayName: String) {
     REJECTED("Rejected")
 }
 
-enum class PayoutMethod(val title: String, val subtitle: String, val minPoints: Int, val iconType: String) {
-    PAYPAL("PayPal Transfer", "Instant cash to PayPal email", 5000, "paypal"),
-    UPI("UPI / Direct Bank", "Instant transfer to any UPI VPA", 3000, "upi"),
-    AMAZON_GIFT("Amazon Gift Card", "Voucher code sent to email", 5000, "amazon"),
-    PLAY_STORE("Google Play Code", "Redeemable Google Play balance", 3000, "playstore"),
-    CRYPTO_USDT("Crypto (USDT / TRC20)", "Direct to your USDT crypto wallet", 10000, "crypto")
+enum class PayoutMethod(
+    val title: String,
+    val subtitle: String,
+    val minPoints: Int,
+    val iconType: String,
+    val isIndianFavorite: Boolean = true
+) {
+    UPI_INSTANT("UPI (GPay / PhonePe / Paytm)", "Instant bank deposit via UPI VPA (e.g. name@upi)", 1000, "upi", true),
+    PAYTM_WALLET("Paytm Wallet Cash", "Direct transfer to 10-digit mobile number", 500, "paytm", true),
+    AMAZON_PAY_IN("Amazon Pay India Voucher", "Instant e-gift code delivered to email/SMS", 2500, "amazon", true),
+    GOOGLE_PLAY_IN("Google Play India Gift Code", "Play Store recharge code for game passes", 1000, "playstore", true),
+    BANK_IMPS("Direct Bank Transfer (IMPS)", "Instant NEFT/IMPS to Indian bank account", 5000, "bank", true),
+    CRYPTO_USDT("Crypto USDT (TRC20 / BEP20)", "For global / crypto withdrawals", 10000, "crypto", false)
 }
 
 enum class Currency(val code: String, val symbol: String, val pointsPerUnit: Double) {
+    INR("INR", "₹", 10.0),        // 10 points = ₹1.00 INR (1,000 points = ₹100.00 INR)
     USD("USD", "$", 1000.0),      // 1,000 points = $1.00 USD
-    INR("INR", "₹", 12.0),        // 12 points = ₹1.00 INR (approx ₹83 per 1000 pts)
     EUR("EUR", "€", 1080.0)       // 1,080 points = €1.00 EUR
 }
 
@@ -35,27 +57,6 @@ data class TaskStepItem(
     val title: String,
     val description: String,
     val isCompleted: Boolean = false
-)
-
-// API Request/Response Schemas for Backend Integration (Node.js / Retrofit)
-data class FetchTasksResponse(
-    val success: Boolean,
-    val tasks: List<TaskDto>,
-    val totalCount: Int,
-    val message: String? = null
-)
-
-data class TaskDto(
-    val id: String,
-    val title: String,
-    val description: String,
-    val category: String,
-    val pointsReward: Int,
-    val durationMinutes: Int,
-    val status: String,
-    val instructions: String,
-    val proofRequirement: String,
-    val isFeatured: Boolean = false
 )
 
 data class SubmitProofRequest(
@@ -99,4 +100,13 @@ data class SecurityAuditResult(
     val isSafeToEarn: Boolean,
     val statusSummary: String,
     val integrityScore: Int // 0 - 100
+)
+
+data class AdminAnalytics(
+    val totalUsers: Int = 1420,
+    val totalEarningsDisbursedInr: Double = 64850.0,
+    val totalTasksLive: Int = 12,
+    val pendingProofSubmissions: Int = 3,
+    val pendingPayoutRequests: Int = 2,
+    val fraudAlertsCount: Int = 1
 )

@@ -14,6 +14,9 @@ interface TaskDao {
     @Query("SELECT * FROM tasks ORDER BY isFeatured DESC, pointsReward DESC")
     fun getAllTasks(): Flow<List<TaskEntity>>
 
+    @Query("SELECT * FROM tasks WHERE status = 'IN_REVIEW'")
+    fun getPendingReviewTasks(): Flow<List<TaskEntity>>
+
     @Query("SELECT * FROM tasks WHERE id = :taskId")
     suspend fun getTaskById(taskId: String): TaskEntity?
 
@@ -37,6 +40,12 @@ interface TaskDao {
         note: String,
         timestamp: Long
     )
+
+    @Query("UPDATE tasks SET status = :newStatus WHERE id = :taskId")
+    suspend fun updateTaskStatus(taskId: String, newStatus: TaskStatus)
+
+    @Query("DELETE FROM tasks WHERE id = :taskId")
+    suspend fun deleteTaskById(taskId: String)
 
     @Query("DELETE FROM tasks")
     suspend fun clearTasks()

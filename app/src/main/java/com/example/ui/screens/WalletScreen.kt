@@ -361,10 +361,11 @@ fun PayoutMethodItem(
                         .clip(RoundedCornerShape(12.dp))
                         .background(
                             when (method) {
-                                PayoutMethod.PAYPAL -> GeoCategoryGamingBg
-                                PayoutMethod.UPI -> GeoCategoryDailyBg
-                                PayoutMethod.AMAZON_GIFT -> GeoPrimaryContainer
-                                PayoutMethod.PLAY_STORE -> GeoCategorySocialBg
+                                PayoutMethod.UPI_INSTANT -> GeoCategoryDailyBg
+                                PayoutMethod.PAYTM_WALLET -> GeoCategoryGamingBg
+                                PayoutMethod.AMAZON_PAY_IN -> GeoPrimaryContainer
+                                PayoutMethod.GOOGLE_PLAY_IN -> GeoCategorySocialBg
+                                PayoutMethod.BANK_IMPS -> GeoCategoryDailyBg
                                 PayoutMethod.CRYPTO_USDT -> GeoCategorySurveyBg
                             }
                         ),
@@ -372,18 +373,20 @@ fun PayoutMethodItem(
                 ) {
                     Icon(
                         imageVector = when (method) {
-                            PayoutMethod.PAYPAL -> Icons.Default.Payment
-                            PayoutMethod.UPI -> Icons.Default.AccountBalance
-                            PayoutMethod.AMAZON_GIFT -> Icons.Default.CardGiftcard
-                            PayoutMethod.PLAY_STORE -> Icons.Default.Shop
+                            PayoutMethod.UPI_INSTANT -> Icons.Default.AccountBalance
+                            PayoutMethod.PAYTM_WALLET -> Icons.Default.Payment
+                            PayoutMethod.AMAZON_PAY_IN -> Icons.Default.CardGiftcard
+                            PayoutMethod.GOOGLE_PLAY_IN -> Icons.Default.Shop
+                            PayoutMethod.BANK_IMPS -> Icons.Default.AccountBalance
                             PayoutMethod.CRYPTO_USDT -> Icons.Default.CurrencyBitcoin
                         },
                         contentDescription = method.title,
                         tint = when (method) {
-                            PayoutMethod.PAYPAL -> GeoCategoryGamingFg
-                            PayoutMethod.UPI -> GeoCategoryDailyFg
-                            PayoutMethod.AMAZON_GIFT -> GeoPrimaryDark
-                            PayoutMethod.PLAY_STORE -> GeoCategorySocialFg
+                            PayoutMethod.UPI_INSTANT -> GeoCategoryDailyFg
+                            PayoutMethod.PAYTM_WALLET -> GeoCategoryGamingFg
+                            PayoutMethod.AMAZON_PAY_IN -> GeoPrimaryDark
+                            PayoutMethod.GOOGLE_PLAY_IN -> GeoCategorySocialFg
+                            PayoutMethod.BANK_IMPS -> GeoCategoryDailyFg
                             PayoutMethod.CRYPTO_USDT -> GeoCategorySurveyFg
                         },
                         modifier = Modifier.size(22.dp)
@@ -400,7 +403,7 @@ fun PayoutMethodItem(
                         color = GeoTextWhite
                     )
                     Text(
-                        text = "Min. %,d pts ($${String.format("%.2f", method.minPoints / 100.0)})".format(method.minPoints),
+                        text = "Min. %,d pts (₹${method.minPoints / 10})".format(method.minPoints),
                         style = MaterialTheme.typography.labelSmall,
                         color = GeoTextMuted
                     )

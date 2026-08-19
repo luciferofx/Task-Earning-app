@@ -43,7 +43,7 @@ class Converters {
         TransactionEntity::class,
         UserProfileEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -61,7 +61,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "task_earn_database"
+                    "task_earn_database_v2"
                 )
                     .fallbackToDestructiveMigration()
                     .build()
